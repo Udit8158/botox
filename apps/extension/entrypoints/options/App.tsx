@@ -1,33 +1,38 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { rpc } from "../../lib/messages";
 
-type ToggleRowProps = {
+function relativeTime(ts: number | null): string {
+  if (!ts) return "never";
+  const s = Math.round((Date.now() - ts) / 1000);
+  if (s < 10) return "just now";
+  if (s < 60) return `${s}s ago`;
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.round(h / 24)}d ago`;
+}
+
+function ToggleRow({
+  label,
+  description,
+  checked,
+}: {
   label: string;
   description: string;
   checked: boolean;
-  disabled?: boolean;
-  badge?: string;
-};
-
-function ToggleRow({ label, description, checked, disabled, badge }: ToggleRowProps) {
+}) {
   return (
-    <div className="flex items-center justify-between gap-4 py-3">
+    <div className="flex items-center justify-between gap-4">
       <div>
-        <div className="flex items-center gap-2">
-          <p className="text-sm font-medium">{label}</p>
-          {badge && (
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:bg-amber-500/15 dark:text-amber-400">
-              {badge}
-            </span>
-          )}
-        </div>
+        <p className="text-sm font-medium">{label}</p>
         <p className="mt-0.5 text-xs text-neutral-400">{description}</p>
       </div>
       <span
         aria-hidden
         className={`relative inline-flex h-5 w-9 shrink-0 rounded-full transition ${
           checked ? "bg-emerald-500" : "bg-neutral-300 dark:bg-neutral-700"
-        } ${disabled ? "opacity-40" : ""}`}
+        }`}
       >
         <span
           className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all ${
@@ -47,6 +52,99 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       </h2>
       <div className="mt-2">{children}</div>
     </section>
+  );
+}
+
+function AccountSection() {
+  const [email, setEmail] = useState<string | null>(null);
+  const [lastSynced, setLastSynced] = useState<number | null>(null);
+  const [ready, setReady] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    rpc({ type: "status" })
+      .then((d) => {
+        setEmail(d.email);
+        setLastSynced(d.lastSyncedAt);
+      })
+      .catch(() => setEmail(null))
+      .finally(() => setReady(true));
+  }, []);
+
+  const signIn = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const d = await rpc({ type: "signin" });
+      setEmail(d.email);
+      setLastSynced(d.lastSyncedAt);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const signOut = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await rpc({ type: "signout" });
+      setEmail(null);
+      setLastSynced(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Section title="Account">
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">
+            {!ready ? "…" : (email ?? "Not connected")}
+          </p>
+          <p className="mt-0.5 text-xs text-neutral-400">
+            {email
+              ? "Syncs automatically to your Google Drive."
+              : "Sign in with Google to use your Drive as storage."}
+          </p>
+          {email && (
+            <div className="mt-1.5 flex items-center gap-1.5 text-xs text-neutral-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Auto-sync on · last synced {relativeTime(lastSynced)}
+            </div>
+          )}
+        </div>
+        {email ? (
+          <button
+            type="button"
+            onClick={signOut}
+            disabled={busy}
+            className="shrink-0 rounded-lg border border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 active:bg-neutral-100 disabled:opacity-50 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900"
+          >
+            {busy ? "…" : "Sign out"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={signIn}
+            disabled={!ready || busy}
+            className="shrink-0 rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white transition hover:opacity-90 active:opacity-80 disabled:opacity-50 dark:bg-white dark:text-neutral-900"
+          >
+            {busy ? "Opening Google…" : "Sign in"}
+          </button>
+        )}
+      </div>
+      {error && (
+        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-500/10 dark:text-red-400">
+          {error}
+        </p>
+      )}
+    </Section>
   );
 }
 
@@ -136,36 +234,34 @@ function DriveState() {
 
   return (
     <Section title="Drive state (debug)">
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-neutral-400">
-          The raw JSON stored in your Drive’s hidden app folder.
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={purge}
-            disabled={busy}
-            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
-          >
-            {armed === "purge" ? "Click to confirm" : "Delete all everywhere"}
-          </button>
-          <button
-            type="button"
-            onClick={reset}
-            disabled={busy}
-            className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50 dark:border-red-500/30 dark:text-red-400 dark:hover:bg-red-500/10"
-          >
-            {armed === "reset" ? "Click to confirm" : "Reset Drive data"}
-          </button>
-          <button
-            type="button"
-            onClick={load}
-            disabled={busy}
-            className="rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900"
-          >
-            {busy ? "Loading…" : "Load from Drive"}
-          </button>
-        </div>
+      <p className="text-xs text-neutral-400">
+        The raw JSON stored in your Drive’s hidden app folder.
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={load}
+          disabled={busy}
+          className="whitespace-nowrap rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 active:bg-neutral-100 disabled:opacity-50 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900"
+        >
+          {busy ? "Loading…" : "Load from Drive"}
+        </button>
+        <button
+          type="button"
+          onClick={reset}
+          disabled={busy}
+          className="whitespace-nowrap rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 active:bg-red-100 disabled:opacity-50 dark:border-red-500/30 dark:text-red-400 dark:hover:bg-red-500/10"
+        >
+          {armed === "reset" ? "Click to confirm" : "Reset Drive data"}
+        </button>
+        <button
+          type="button"
+          onClick={purge}
+          disabled={busy}
+          className="whitespace-nowrap rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 active:bg-red-800 disabled:opacity-50"
+        >
+          {armed === "purge" ? "Click to confirm" : "Delete all everywhere"}
+        </button>
       </div>
       {error && (
         <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-500/10 dark:text-red-400">
@@ -204,61 +300,14 @@ export default function App() {
         </header>
 
         <div className="space-y-4">
-          <Section title="Account">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">Not connected</p>
-                <p className="mt-0.5 text-xs text-neutral-400">
-                  Sign in with Google to use your Drive as storage.
-                </p>
-              </div>
-              <button
-                type="button"
-                disabled
-                className="rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white opacity-50 dark:bg-white dark:text-neutral-900"
-              >
-                Sign in
-              </button>
-            </div>
-          </Section>
+          <AccountSection />
 
-          <Section title="What to sync">
-            <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-              <ToggleRow
-                label="Bookmarks"
-                description="Keep bookmarks identical across all your browsers."
-                checked
-              />
-              <ToggleRow
-                label="History"
-                description="Sync browsing history across devices."
-                checked={false}
-                disabled
-                badge="Pro"
-              />
-              <ToggleRow
-                label="Open tabs"
-                description="Carry your open tabs between machines."
-                checked={false}
-                disabled
-                badge="Pro"
-              />
-            </div>
-          </Section>
-
-          <Section title="Plan">
-            <div className="flex items-center justify-between">
-              <p className="text-sm">
-                You're on the <span className="font-medium">Free</span> plan.
-              </p>
-              <button
-                type="button"
-                disabled
-                className="rounded-lg border border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-400 dark:border-neutral-800"
-              >
-                Upgrade (soon)
-              </button>
-            </div>
+          <Section title="What syncs">
+            <ToggleRow
+              label="Bookmarks"
+              description="Keep bookmarks identical across all your browsers."
+              checked
+            />
           </Section>
 
           <DriveState />

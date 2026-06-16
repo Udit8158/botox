@@ -75,9 +75,6 @@ export default function App() {
       <header className="flex items-center gap-2 px-4 pt-4">
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
         <h1 className="text-sm font-semibold tracking-tight">Botox</h1>
-        <span className="ml-auto rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
-          Free
-        </span>
       </header>
 
       <div className="px-4 py-4">
@@ -104,7 +101,7 @@ export default function App() {
             type="button"
             onClick={signIn}
             disabled={!ready || busy !== null}
-            className="mt-3 w-full rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50 dark:bg-white dark:text-neutral-900"
+            className="mt-3 w-full rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white transition hover:opacity-90 active:opacity-80 disabled:opacity-50 dark:bg-white dark:text-neutral-900"
           >
             {busy === "signin" ? "Opening Google…" : "Sign in with Google"}
           </button>
@@ -113,7 +110,7 @@ export default function App() {
             type="button"
             onClick={sync}
             disabled={busy !== null}
-            className="mt-3 w-full rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50 dark:bg-white dark:text-neutral-900"
+            className="mt-3 w-full rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white transition hover:opacity-90 active:opacity-80 disabled:opacity-50 dark:bg-white dark:text-neutral-900"
           >
             {busy === "sync" ? "Syncing…" : "Sync now"}
           </button>
@@ -135,7 +132,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => browser.runtime.openOptionsPage()}
-            className="text-xs font-medium text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
+            className="rounded-md text-xs font-medium text-neutral-500 transition-colors hover:text-neutral-800 dark:hover:text-neutral-200"
           >
             Settings
           </button>
@@ -144,7 +141,7 @@ export default function App() {
               type="button"
               onClick={signOut}
               disabled={busy !== null}
-              className="text-xs font-medium text-neutral-400 hover:text-red-600 disabled:opacity-50"
+              className="rounded-md text-xs font-medium text-neutral-400 transition-colors hover:text-red-600 disabled:opacity-50"
             >
               Sign out
             </button>
