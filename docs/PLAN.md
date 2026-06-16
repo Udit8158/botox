@@ -259,3 +259,17 @@ pre-existing duplicate nodes on sync.
   synced …". 17 tests green, typecheck + build clean. **The tool is now hands-off
   and daily-drivable.** Next: M4 (Supabase control plane + Pro gating + UI
   polish).
+- **2026-06-16** — **Exact structure + order enforcement.** The apply reconciler
+  (`apply.ts`) now guarantees the local tree matches the cloud document
+  position-for-position. Root cause of the earlier breakage: order was never
+  enforced and `create({index})` scrambled folders with interleaved
+  subfolders/bookmarks. Fix: dropped `index` from creation; added a third
+  `enforceOrder` phase that re-reads the tree and, per folder whose child order
+  differs from the document, re-appends children in document `index` order
+  (`bookmarks.move` with only a parentId appends to end → appending in order
+  yields exact order, and also pulls mis-parented items into the right folder).
+  Folders already correct are skipped, so steady-state syncs stay cheap.
+  Maintainer verified structure + order now match on a 288-item set.
+  **Decision: keep sync timing as-is for now** (15-min pull); a future cheap win
+  is revision-based change-detection + conditional write + shorter interval +
+  sync-on-focus (noted but deferred).
