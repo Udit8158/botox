@@ -1,0 +1,32 @@
+{
+  "name": "@botox/extension",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "postinstall": "wxt prepare",
+    "typecheck": "wxt prepare && tsc --noEmit"
+  },
+  "dependencies": {
+    "@botox/shared": "workspace:*",
+    "@botox/storage": "workspace:*",
+    "@botox/sync-core": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "@wxt-dev/module-react": "^1.2.2",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.2",
+    "wxt": "^0.20.26"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  // Extends the WXT base (auto-imports, browser types, path aliases @/ -> root).
+  // WXT's generated base is minimal, so we set React JSX + TS-extension imports here.
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true
+  }
+}

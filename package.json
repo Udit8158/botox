@@ -1,0 +1,24 @@
+{
+  "name": "botox",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Cross-browser bookmark sync using the user's own Google Drive",
+  "packageManager": "pnpm@11.0.1",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "ext:dev": "pnpm --filter @botox/extension dev",
+    "ext:build": "pnpm --filter @botox/extension build"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "@vitejs/plugin-react": "^5.2.0"
+    }
+  }
+}
