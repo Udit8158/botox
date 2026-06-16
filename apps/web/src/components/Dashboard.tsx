@@ -8,9 +8,11 @@ import {
   subfoldersOf,
 } from "../lib/tree";
 import { domainOf } from "../lib/format";
+import type { Theme } from "../lib/theme";
 import { Sidebar } from "./Sidebar";
 import { BookmarkTable } from "./BookmarkTable";
 import { SearchIcon, TrashIcon } from "./icons";
+import { ThemeToggle } from "./ThemeToggle";
 import { Modal, ModalButtons, btn } from "./Modal";
 
 type SortKey = "title" | "added-desc" | "added-asc";
@@ -26,6 +28,8 @@ export function Dashboard(props: {
   busy: boolean;
   error: string | null;
   account: string | null;
+  theme: Theme;
+  onToggleTheme: () => void;
   onRefresh: () => void;
   onSignOut: () => void;
   onRename: (item: SyncItem, title: string) => void;
@@ -93,38 +97,39 @@ export function Dashboard(props: {
   const pickedItems = [...picked.values()];
 
   return (
-    <div className="flex h-full bg-white text-zinc-800">
+    <div className="flex h-full bg-white text-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
       <Sidebar root={tree} selected={selected} onSelect={setSelected} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-3 border-b border-zinc-200 px-5 py-3">
+        <header className="flex items-center gap-3 border-b border-zinc-200 px-5 py-3 dark:border-zinc-800">
           <div className="min-w-0">
-            <h1 className="truncate text-sm font-semibold text-zinc-900">
+            <h1 className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
               {selected ? selected[selected.length - 1] : "All bookmarks"}
             </h1>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">
               {childFolders.length > 0 && `${childFolders.length} folders · `}
               {rows.length} {rows.length === 1 ? "bookmark" : "bookmarks"}
             </p>
           </div>
 
           <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle theme={props.theme} onToggle={props.onToggleTheme} />
             <button
               onClick={props.onRefresh}
               disabled={busy}
-              className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 disabled:opacity-50"
+              className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50 active:bg-zinc-100 disabled:opacity-50 disabled:hover:bg-transparent dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:active:bg-zinc-700"
             >
               {busy ? "Working…" : "Refresh"}
             </button>
             <div className="hidden items-center gap-2 sm:flex">
               {account && (
-                <span className="max-w-[160px] truncate text-xs text-zinc-400">
+                <span className="max-w-[160px] truncate text-xs text-zinc-400 dark:text-zinc-500">
                   {account}
                 </span>
               )}
               <button
                 onClick={props.onSignOut}
-                className="rounded-lg px-2 py-1.5 text-xs font-medium text-zinc-500 hover:bg-zinc-100"
+                className="rounded-lg px-2 py-1.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 active:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
               >
                 Sign out
               </button>
@@ -133,51 +138,51 @@ export function Dashboard(props: {
         </header>
 
         {mock && (
-          <div className="border-b border-amber-200 bg-amber-50 px-5 py-1.5 text-xs text-amber-700">
+          <div className="border-b border-amber-200 bg-amber-50 px-5 py-1.5 text-xs text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
             Sample data (mock mode) — changes are in-memory only.
           </div>
         )}
         {error && (
-          <div className="border-b border-red-200 bg-red-50 px-5 py-1.5 text-xs text-red-600">
+          <div className="border-b border-red-200 bg-red-50 px-5 py-1.5 text-xs text-red-600 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
             {error}
           </div>
         )}
 
         {/* Toolbar — swaps to a bulk-action bar when items are selected. */}
         {picked.size > 0 ? (
-          <div className="flex items-center gap-3 border-b border-zinc-200 bg-zinc-50 px-5 py-2.5">
-            <span className="text-sm font-medium text-zinc-700">
+          <div className="flex items-center gap-3 border-b border-zinc-200 bg-zinc-50 px-5 py-2.5 dark:border-zinc-800 dark:bg-zinc-900">
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
               {picked.size} selected
             </span>
             <button
               onClick={() => setDialog({ kind: "delete", items: pickedItems })}
               disabled={busy}
-              className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-500 active:bg-red-700 disabled:opacity-50"
             >
               <TrashIcon /> Delete selected
             </button>
             <button
               onClick={() => setPicked(new Map())}
-              className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 hover:bg-zinc-200/70"
+              className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-200/70 active:bg-zinc-300/70 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
               Clear
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-3 border-b border-zinc-100 px-5 py-2.5">
+          <div className="flex items-center gap-3 border-b border-zinc-100 px-5 py-2.5 dark:border-zinc-800">
             <div className="relative max-w-md flex-1">
-              <SearchIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <SearchIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search bookmarks…"
-                className="w-full rounded-lg border border-zinc-200 bg-zinc-50 py-1.5 pl-9 pr-3 text-sm text-zinc-700 outline-none placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white"
+                className="w-full rounded-lg border border-zinc-200 bg-zinc-50 py-1.5 pl-9 pr-3 text-sm text-zinc-700 outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-2 focus:ring-zinc-900/5 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:bg-zinc-800 dark:focus:ring-white/10"
               />
             </div>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-600 outline-none"
+              className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-600 outline-none transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
             >
               <option value="title">Sort: Name</option>
               <option value="added-desc">Sort: Newest</option>
@@ -257,7 +262,7 @@ function RenameDialog({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && valid && onSubmit(value.trim())}
-        className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
+        className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none transition-colors focus:border-zinc-400 focus:ring-2 focus:ring-zinc-900/5 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-500 dark:focus:ring-white/10"
       />
       <ModalButtons>
         <button className={btn.ghost} onClick={onClose}>
@@ -292,13 +297,13 @@ function MoveDialog({
   const unchanged = samePath(target, item.path);
   return (
     <Modal title="Move bookmark" onClose={onClose}>
-      <p className="mb-2 text-xs text-zinc-500">
+      <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
         Choose a destination folder for “{item.title}”.
       </p>
       <select
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
+        className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-500"
       >
         {options.map((p) => (
           <option key={JSON.stringify(p)} value={JSON.stringify(p)}>
@@ -342,7 +347,7 @@ function DeleteDialog({
 
   return (
     <Modal title={single ? `Delete ${items[0]!.type}` : "Delete items"} onClose={onClose}>
-      <p className="text-sm text-zinc-600">
+      <p className="text-sm text-zinc-600 dark:text-zinc-300">
         Delete {summary}? This removes {single ? "it" : "them"} from every synced
         browser.
         {folders > 0 && " Folders are deleted along with everything inside them."}

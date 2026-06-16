@@ -1,23 +1,34 @@
+import type { Theme } from "../lib/theme";
+import { ThemeToggle } from "./ThemeToggle";
+
 export function SignIn({
   onSignIn,
   busy,
   error,
+  theme,
+  onToggleTheme,
 }: {
   onSignIn: () => void;
   busy: boolean;
   error: string | null;
+  theme: Theme;
+  onToggleTheme: () => void;
 }) {
   return (
-    <div className="flex h-full items-center justify-center bg-zinc-50 px-6">
+    <div className="relative flex h-full items-center justify-center bg-zinc-50 px-6 dark:bg-zinc-950">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+      </div>
+
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 text-lg font-semibold text-white">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 text-lg font-semibold text-white dark:bg-white dark:text-zinc-900">
             B
           </div>
-          <h1 className="text-xl font-semibold tracking-tight text-zinc-900">
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
             Botox Bookmarks
           </h1>
-          <p className="mt-1.5 text-sm text-zinc-500">
+          <p className="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">
             View and manage the bookmarks synced to your Google Drive.
           </p>
         </div>
@@ -25,19 +36,19 @@ export function SignIn({
         <button
           onClick={onSignIn}
           disabled={busy}
-          className="flex w-full items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 hover:shadow active:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
         >
           <GoogleMark />
           {busy ? "Signing in…" : "Sign in with Google"}
         </button>
 
         {error && (
-          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-center text-xs text-red-600">
+          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-center text-xs text-red-600 dark:bg-red-500/10 dark:text-red-400">
             {error}
           </p>
         )}
 
-        <p className="mt-6 text-center text-xs leading-relaxed text-zinc-400">
+        <p className="mt-6 text-center text-xs leading-relaxed text-zinc-400 dark:text-zinc-500">
           Your bookmarks stay in your own Google Drive. This dashboard reads them
           directly in your browser — nothing is stored on any server.
         </p>

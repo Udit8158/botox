@@ -38,7 +38,7 @@ export function BookmarkTable({
 
   if (total === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center text-sm text-zinc-400">
+      <div className="flex flex-1 items-center justify-center text-sm text-zinc-400 dark:text-zinc-500">
         Nothing here.
       </div>
     );
@@ -47,8 +47,8 @@ export function BookmarkTable({
   return (
     <div className="flex-1 overflow-auto">
       <table className="w-full border-collapse text-sm">
-        <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur">
-          <tr className="border-b border-zinc-200 text-left text-xs font-medium text-zinc-400">
+        <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
+          <tr className="border-b border-zinc-200 text-left text-xs font-medium text-zinc-400 dark:border-zinc-800 dark:text-zinc-500">
             <th className="w-10 px-4 py-2.5">
               <input
                 ref={headRef}
@@ -56,7 +56,7 @@ export function BookmarkTable({
                 aria-label="Select all"
                 checked={allSelected}
                 onChange={onToggleAll}
-                className="h-4 w-4 cursor-pointer rounded border-zinc-300 accent-zinc-900"
+                className="h-4 w-4 cursor-pointer rounded border-zinc-300 accent-zinc-900 dark:border-zinc-600 dark:accent-zinc-300"
               />
             </th>
             <th className="px-4 py-2.5 font-medium">Name</th>
@@ -73,18 +73,18 @@ export function BookmarkTable({
                   onClick={() => onNavigate([...item.path, item.title])}
                   className="flex items-center gap-2.5 text-left"
                 >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-amber-50 text-amber-500">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-amber-50 text-amber-500 dark:bg-amber-500/10">
                     <FolderIcon />
                   </span>
-                  <span className="font-medium text-zinc-800 hover:text-zinc-900">
+                  <span className="font-medium text-zinc-800 hover:text-zinc-900 dark:text-zinc-100 dark:hover:text-white">
                     {item.title}
                   </span>
                 </button>
               </td>
-              <td className="hidden px-4 py-2.5 align-middle text-xs text-zinc-400 md:table-cell">
+              <td className="hidden px-4 py-2.5 align-middle text-xs text-zinc-400 md:table-cell dark:text-zinc-500">
                 Folder
               </td>
-              <td className="hidden whitespace-nowrap px-4 py-2.5 align-middle text-xs text-zinc-500 lg:table-cell">
+              <td className="hidden whitespace-nowrap px-4 py-2.5 align-middle text-xs text-zinc-500 lg:table-cell dark:text-zinc-400">
                 {formatDate(item.addedAt)}
               </td>
               <td className="px-4 py-2.5 text-right">
@@ -116,21 +116,21 @@ export function BookmarkTable({
                     {domainOf(item.url).charAt(0).toUpperCase() || "?"}
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate font-medium text-zinc-800 group-hover:text-zinc-900">
+                    <span className="block truncate font-medium text-zinc-800 group-hover:text-zinc-900 dark:text-zinc-100 dark:group-hover:text-white">
                       {item.title || "(untitled)"}
                     </span>
-                    <span className="block truncate text-xs text-zinc-400">
+                    <span className="block truncate text-xs text-zinc-400 dark:text-zinc-500">
                       {domainOf(item.url)}
                     </span>
                   </span>
                 </a>
               </td>
               <td className="hidden px-4 py-2.5 align-middle md:table-cell">
-                <span className="truncate text-xs text-zinc-500">
+                <span className="truncate text-xs text-zinc-500 dark:text-zinc-400">
                   {item.path.join(" / ") || "—"}
                 </span>
               </td>
-              <td className="hidden whitespace-nowrap px-4 py-2.5 align-middle text-xs text-zinc-500 lg:table-cell">
+              <td className="hidden whitespace-nowrap px-4 py-2.5 align-middle text-xs text-zinc-500 lg:table-cell dark:text-zinc-400">
                 {formatDate(item.addedAt)}
               </td>
               <td className="px-4 py-2.5 text-right">
@@ -170,8 +170,10 @@ function Row({
 }) {
   return (
     <tr
-      className={`group border-b border-zinc-100 ${
-        selected ? "bg-zinc-100/70" : "hover:bg-zinc-50"
+      className={`group border-b border-zinc-100 dark:border-zinc-800/60 ${
+        selected
+          ? "bg-zinc-100/70 dark:bg-zinc-800/50"
+          : "hover:bg-zinc-50 dark:hover:bg-zinc-900"
       }`}
     >
       <td className="px-4 py-2.5">
@@ -180,7 +182,7 @@ function Row({
           aria-label={`Select ${item.title}`}
           checked={selected}
           onChange={() => onToggle(item)}
-          className="h-4 w-4 cursor-pointer rounded border-zinc-300 accent-zinc-900"
+          className="h-4 w-4 cursor-pointer rounded border-zinc-300 accent-zinc-900 dark:border-zinc-600 dark:accent-zinc-300"
         />
       </td>
       {children}
@@ -210,8 +212,10 @@ function RowAction({
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`flex h-7 w-7 items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-200/70 ${
-        danger ? "hover:text-red-600" : "hover:text-zinc-700"
+      className={`flex h-7 w-7 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-200/70 active:bg-zinc-300/70 dark:text-zinc-500 dark:hover:bg-zinc-700/70 ${
+        danger
+          ? "hover:text-red-600 dark:hover:text-red-400"
+          : "hover:text-zinc-700 dark:hover:text-zinc-200"
       }`}
     >
       {children}

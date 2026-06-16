@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { emptyDocument, type SyncDocument, type SyncItem } from "@botox/shared";
 import { createAdapter, getDeviceId, isMockMode } from "./lib/adapter";
 import { deleteItems, moveItem, renameItem } from "./lib/mutations";
+import { useTheme } from "./lib/theme";
 import { SignIn } from "./components/SignIn";
 import { Dashboard } from "./components/Dashboard";
 
@@ -11,6 +12,7 @@ export function App() {
   const { adapter, accountLabel } = useMemo(() => createAdapter(), []);
   const deviceId = useMemo(() => getDeviceId(), []);
   const mock = isMockMode();
+  const { theme, toggle: toggleTheme } = useTheme();
 
   const [phase, setPhase] = useState<Phase>("init");
   const [doc, setDoc] = useState<SyncDocument | null>(null);
@@ -103,7 +105,15 @@ export function App() {
   );
 
   if (phase === "signin") {
-    return <SignIn onSignIn={signIn} busy={busy} error={error} />;
+    return (
+      <SignIn
+        onSignIn={signIn}
+        busy={busy}
+        error={error}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+    );
   }
 
   if (phase === "init" || phase === "loading" || !doc) {
@@ -127,6 +137,8 @@ export function App() {
       busy={busy}
       error={error}
       account={account}
+      theme={theme}
+      onToggleTheme={toggleTheme}
       onRefresh={load}
       onSignOut={signOut}
       onRename={onRename}
@@ -146,14 +158,14 @@ function CenteredMessage({
   action?: { label: string; onClick: () => void };
 }) {
   return (
-    <div className="flex h-full items-center justify-center bg-zinc-50 px-6 text-center">
+    <div className="flex h-full items-center justify-center bg-zinc-50 px-6 text-center dark:bg-zinc-950">
       <div className="max-w-md">
-        <p className="text-base font-medium text-zinc-800">{title}</p>
-        {detail && <p className="mt-2 text-sm text-zinc-500">{detail}</p>}
+        <p className="text-base font-medium text-zinc-800 dark:text-zinc-100">{title}</p>
+        {detail && <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{detail}</p>}
         {action && (
           <button
             onClick={action.onClick}
-            className="mt-5 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+            className="mt-5 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 active:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             {action.label}
           </button>

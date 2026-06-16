@@ -12,13 +12,13 @@ export function Sidebar({
   onSelect: (path: string[] | null) => void;
 }) {
   return (
-    <nav className="flex h-full w-64 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50/60">
+    <nav className="flex h-full w-64 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50/60 dark:border-zinc-800 dark:bg-zinc-900/40">
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-900 text-sm font-semibold text-white">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-900 text-sm font-semibold text-white dark:bg-white dark:text-zinc-900">
             B
           </div>
-          <span className="text-sm font-semibold tracking-tight text-zinc-800">
+          <span className="text-sm font-semibold tracking-tight text-zinc-800 dark:text-zinc-100">
             Botox
           </span>
         </div>
@@ -29,7 +29,7 @@ export function Sidebar({
           onClick={() => onSelect(null)}
           className={rowClass(selected === null)}
         >
-          <FolderIcon className="text-zinc-400" />
+          <FolderIcon className="text-zinc-400 dark:text-zinc-500" />
           <span className="flex-1 truncate text-left">All bookmarks</span>
           <Count n={root.totalCount} />
         </button>
@@ -68,8 +68,8 @@ function FolderRow({
       <div className={rowClass(active)} style={{ paddingLeft: 8 + depth * 14 }}>
         <button
           onClick={() => hasChildren && setOpen((o) => !o)}
-          className={`flex h-4 w-4 items-center justify-center text-zinc-400 ${
-            hasChildren ? "hover:text-zinc-600" : "invisible"
+          className={`flex h-4 w-4 items-center justify-center text-zinc-400 dark:text-zinc-500 ${
+            hasChildren ? "hover:text-zinc-600 dark:hover:text-zinc-300" : "invisible"
           }`}
           aria-label={open ? "Collapse" : "Expand"}
         >
@@ -99,12 +99,14 @@ function FolderRow({
 }
 
 const rowClass = (active: boolean) =>
-  `flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${
+  `flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors ${
     active
-      ? "bg-zinc-200/70 font-medium text-zinc-900"
-      : "text-zinc-600 hover:bg-zinc-200/40"
+      ? "bg-zinc-200/70 font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+      : "text-zinc-600 hover:bg-zinc-200/40 dark:text-zinc-400 dark:hover:bg-zinc-800/60"
   }`;
 
 const Count = ({ n }: { n: number }) => (
-  <span className="ml-auto shrink-0 text-xs tabular-nums text-zinc-400">{n}</span>
+  <span className="ml-auto shrink-0 text-xs tabular-nums text-zinc-400 dark:text-zinc-500">
+    {n}
+  </span>
 );
